@@ -29,6 +29,16 @@ extern uint32_t msr_ir_test;
 extern uint32_t msr_dr_test;
 extern uint32_t msr_ip_test;
 
+extern uint32_t instr_page_min_address;
+extern uint32_t instr_page_max_address;
+
+extern uint32_t data_page_min_address;
+extern uint32_t data_page_max_address;
+extern uint32_t data_offset;
+
+extern uint32_t instr_page[1024];
+extern uint8_t data_page[4096];
+
 extern unsigned char * grab_macmem_ptr;
 
 /**
@@ -43,6 +53,10 @@ extern void ibat_update(uint32_t bat_reg);
 extern void dbat_update(uint32_t bat_reg);
 
 extern void msr_status_update();
+
+extern void ppc_init_instr_page();
+extern void ppc_set_instr_page();
+extern void ppc_exec_instr_page(uint32_t address);
 
 extern void address_quickinsert_translate(uint32_t value_insert, uint32_t address_grab, uint8_t num_bytes);
 extern void address_quickgrab_translate(uint32_t address_grab, uint8_t num_bytes);
