@@ -958,31 +958,42 @@ void ppc_negodot(){
 
 void ppc_cntlzw(){
     ppc_grab_regssa();
-    uint32_t trail = 0;
-    uint32_t bit_set = 0x80000000;
+
+    uint32_t lead = 0;
+    uint32_t bit_check = ppc_result_d;
+
+    #ifdef USE_GCC_BUILTINS
+    lead = __builtin_clz(bit_check);
+    #elifdef USE_VS_BUILTINS
+    lead = __lzcnt(bit_check);
+    #else
     do{
-        if ((ppc_result_d && bit_set) == 1){
-            break;
-        }
-        bit_set = bit_set >> 1;
-        trail++;
-    } while (trail < 32);
-    ppc_result_a = trail;
+        bit_check >>= 1;
+        ++lead;
+    } while (bit_check > 0);
+    #endif
+    ppc_result_a = lead;
     ppc_store_result_rega();
 }
 
 void ppc_cntlzwdot(){
     ppc_grab_regssa();
-    uint32_t trail = 0;
-    uint32_t bit_set = 0xF0000000;
+
+    uint32_t lead = 0;
+    uint32_t bit_check = ppc_result_d;
+
+    #ifdef USE_GCC_BUILTINS
+    lead = __builtin_clz(bit_check);
+    #elifdef USE_VS_BUILTINS
+    lead = __lzcnt(bit_check);
+    #else
     do{
-        if ((ppc_result_d && bit_set) == 1){
-            break;
-        }
-        bit_set = bit_set >> 1;
-        trail++;
-    } while (trail < 32);
-    ppc_result_a = trail;
+        bit_check >>= 1;
+        ++lead;
+    } while (bit_check > 0);
+    #endif
+
+    ppc_result_a = lead;
     ppc_changecrf0(ppc_result_a);
     ppc_store_result_rega();
 }
@@ -1115,7 +1126,7 @@ void ppc_divwdot(){
 
 void ppc_divwo(){
     ppc_grab_regsdab();
- 
+
     //handle division by zero cases
     switch (ppc_result_b){
     case 0:
