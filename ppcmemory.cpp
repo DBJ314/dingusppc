@@ -1175,6 +1175,9 @@ void quickinstruction_translate(uint32_t address_grab)
 }
 
 void ppc_exec_instr_page(uint32_t address){
+    if ((address > instr_page_max_address) | (address < instr_page_min_address)) {
+        quickinstruction_translate(address);
+    }
     ppc_cache_cur_instruction(address);
 }
 

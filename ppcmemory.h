@@ -55,8 +55,11 @@ extern void dbat_update(uint32_t bat_reg);
 extern void msr_status_update();
 
 extern void ppc_init_instr_page();
-extern void ppc_set_instr_page();
+extern void ppc_set_instr_page(uint32_t address);
 extern void ppc_exec_instr_page(uint32_t address);
+
+extern void ppc_data_page_insert(uint32_t insert_value, uint32_t address, uint8_t num_bytes);
+extern void ppc_data_page_store(uint32_t address, uint8_t num_bytes);
 
 extern void address_quickinsert_translate(uint32_t value_insert, uint32_t address_grab, uint8_t num_bytes);
 extern void address_quickgrab_translate(uint32_t address_grab, uint8_t num_bytes);
