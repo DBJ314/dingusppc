@@ -666,7 +666,7 @@ int main(int argc, char **argv)
                 */
         }
         else if ((checker=="e")|(checker=="loadelf")|(checker=="/loadelf")|(checker=="-loadelf")){
-            ifstream elfFile;
+            ifstream elfFile(argv[2], ifstream::in);
             uint32_t elf_file_setsize = 0;
 
             char elf_headerchk [4];
@@ -681,12 +681,12 @@ int main(int argc, char **argv)
             if (elf_file_setsize < 45){
                 cerr << "Elf File TOO SMALL. Please make sure it's a legitimate file.";
 
-                return 1;
+                return -1;
             }
             else if (elf_file_setsize > ram_size_set){
                 cerr << "Elf File TOO BIG. Please make sure it fits within memory.";
 
-                return 1;
+                return -1;
             }
 
             //There's got to be a better way to get fields of info from an ELF file.
@@ -705,7 +705,7 @@ int main(int argc, char **argv)
 
             if (!elf_valid_check){
                 cerr << "The ELF file inserted was not legitimate. Please try again." << endl;
-                return 1;
+                return -1;
             }
 
             elfFile.read ((char *)machine_sysram_mem,ram_size_set);
@@ -721,12 +721,83 @@ int main(int argc, char **argv)
             if (elfFile.fail()){
                 cerr << "Please insert the elf file before continuing.\n";
 
-                return 1;
+                return -1;
             }
 
             ppc_state.ppc_pc = atoi(elf_memoffset);
 
             execute_interpreter();
+        }
+        else if ((checker=="pef")|(checker=="/pef")|(checker=="-pef")){
+            ifstream pefFile(argv[2], ifstream::in);
+            uint32_t pef_file_setsize = 0;
+
+            char * header_check1 = new char[4];
+            char * header_check2 = new char[4];
+            char * header_check3 = new char[4];
+
+            pefFile.seekg(0, pefFile.end);
+            pef_file_setsize = pefFile.tellg();
+            pefFile.seekg (0, pefFile.beg);
+
+            if (pef_file_setsize < 48){
+                cerr << "PEF File TOO SMALL. Please make sure it's a legitimate file.";
+
+                return 1;
+            }
+            else if (pef_file_setsize > ram_size_set){
+                cerr << "PEF File TOO BIG. Please make sure it fits within memory.";
+
+                return 1;
+            }
+
+            pefFile.seekg(0x0, ios::beg); //ELF file begins here
+            pefFile.read(header_check1, 4);
+            pefFile.seekg(0x4, ios::cur);
+            pefFile.read(header_check2, 4);
+            pefFile.seekg(0x4, ios::cur);
+            pefFile.read(header_check3, 4);
+
+            bool pef_valid_check = ((atoi(header_check1) == 0x4A6F7921) && \
+                                    (atoi(header_check2) == 0x70656666) && \
+                                    (atoi(header_check3) == 0x70777063));
+
+            if (pef_valid_check){
+                printf("PEF File Confirmed Valid - PPC");
+            }
+
+            return 1;
+        }
+        else if ((checker=="macho")|(checker=="/macho")|(checker=="-macho")){
+            ifstream machoFile(argv[2], ifstream::in);
+            uint32_t macho_file_setsize = 0;
+
+            char * macho_check = new char[4];
+
+            machoFile.seekg(0, machoFile.end);
+            macho_file_setsize = machoFile.tellg();
+            machoFile.seekg (0, machoFile.beg);
+
+            if (macho_file_setsize < 48){
+                cerr << "PEF File TOO SMALL. Please make sure it's a legitimate file.";
+
+                return 1;
+            }
+            else if (macho_file_setsize > ram_size_set){
+                cerr << "PEF File TOO BIG. Please make sure it fits within memory.";
+
+                return 1;
+            }
+
+            machoFile.seekg(0x0, ios::beg); //ELF file begins here
+            machoFile.read(macho_check, 4);
+
+            bool macho_valid_check = (((uint32_t)(atoi(macho_check)) == 0xFEEDFACE));
+
+            if (macho_valid_check){
+                printf("Macho File Confirmed Valid");
+            }
+            return 1;
         }
         else if ((checker=="until")|(checker=="/until")|(checker=="-until")){
             uint32_t grab_bp = 0x0;
@@ -846,7 +917,7 @@ int main(int argc, char **argv)
                     }
                 }
             }
-        } else if (checker == "debugger") {
+        } else if ((checker == "debugger")|(checker == "-debugger")|(checker == "/debugger")) {
             enter_debugger();
         }
     }
