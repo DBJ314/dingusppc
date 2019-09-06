@@ -581,6 +581,9 @@ int main(int argc, char **argv)
 
             ppc_state.ppc_pc = 0xFFF00100;//Please don't move this from here.
                                           //A strange bug will happen where this will prevent proper branching
+          
+            ppc_set_instr_page(ppc_state.ppc_pc);
+          
             mpc106_init();
             mac_serial_init();
             mac_swim3_init();
