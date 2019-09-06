@@ -341,7 +341,7 @@ void execute_interpreter(){
 
     while (power_on){
         //printf("PowerPC Address: %x \n", ppc_state.ppc_pc);
-        ppc_set_instr_page(ppc_state.ppc_pc);
+        ppc_exec_instr_page(ppc_state.ppc_pc);
         ppc_main_opcode();
         if (grab_branch & !grab_exception){
             ppc_state.ppc_pc = ppc_next_instruction_address;
@@ -368,7 +368,7 @@ void execute_interpreter_bp (uint32_t ppc_break_addr){
     //It then prints the regs at the time it stopped.
 
     while (ppc_state.ppc_pc != ppc_break_addr){
-        ppc_set_instr_page(ppc_state.ppc_pc);
+        ppc_exec_instr_page(ppc_state.ppc_pc);
         ppc_main_opcode();
         if (grab_branch & !grab_exception){
             ppc_state.ppc_pc = ppc_next_instruction_address;
